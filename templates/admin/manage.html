@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block title %}Manage Listings{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="section-header">
+        <h1 class="page-title">Manage Listings</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">← Dashboard</a>
+    </div>
+
+    <div class="admin-forms">
+        <!-- ADD FLIGHT -->
+        <div class="admin-form-card">
+            <h3>✈️ Add Flight</h3>
+            <form action="{{ url_for('admin_add_flight') }}" method="post">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Airline</label>
+                        <input type="text" name="airline" placeholder="IndiGo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Flight No.</label>
+                        <input type="text" name="flight_number" placeholder="6E-101" required>
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Origin</label>
+                        <input type="text" name="origin" placeholder="Delhi" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Destination</label>
+                        <input type="text" name="destination" placeholder="Mumbai" required>
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Departure</label>
+                        <input type="time" name="departure_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Arrival</label>
+                        <input type="time" name="arrival_time" required>
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Duration (hrs)</label>
+                        <input type="number" name="duration_hrs" step="0.5" placeholder="2.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Flight Date</label>
+                        <input type="date" name="flight_date" required>
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Economy Price (₹)</label>
+                        <input type="number" name="price_economy" placeholder="4500" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Business Price (₹)</label>
+                        <input type="number" name="price_business" placeholder="12000" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Stops</label>
+                    <select name="stops">
+                        <option value="0">Non-stop</option>
+                        <option value="1">1 stop</option>
+                        <option value="2">2 stops</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Flight</button>
+            </form>
+        </div>
+
+        <!-- ADD HOTEL -->
+        <div class="admin-form-card">
+            <h3>🏨 Add Hotel</h3>
+            <form action="{{ url_for('admin_add_hotel') }}" method="post">
+                <div class="form-group">
+                    <label>Hotel Name</label>
+                    <input type="text" name="name" placeholder="The Grand Hotel" required>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" name="city" placeholder="Delhi" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Star Rating</label>
+                        <select name="star_rating">
+                            <option value="1">1 ⭐</option>
+                            <option value="2">2 ⭐⭐</option>
+                            <option value="3" selected>3 ⭐⭐⭐</option>
+                            <option value="4">4 ⭐⭐⭐⭐</option>
+                            <option value="5">5 ⭐⭐⭐⭐⭐</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" name="address" placeholder="123, MG Road" required>
+                </div>
+                <div class="form-group">
+                    <label>Amenities (comma-separated)</label>
+                    <input type="text" name="amenities" placeholder="Pool,Gym,WiFi,Restaurant">
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Single Room (₹/night)</label>
+                        <input type="number" name="price_single" placeholder="2500" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Double Room (₹/night)</label>
+                        <input type="number" name="price_double" placeholder="3500" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Suite (₹/night)</label>
+                    <input type="number" name="price_suite" placeholder="8000" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="2" placeholder="A brief description..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Hotel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- EXISTING FLIGHTS TABLE -->
+    <div class="admin-section">
+        <h3>✈️ All Flights ({{ flights|length }})</h3>
+        <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr><th>ID</th><th>Airline</th><th>No.</th><th>Route</th><th>Date</th><th>Economy</th><th>Business</th></tr>
+            </thead>
+            <tbody>
+                {% for f in flights %}
+                <tr>
+                    <td>{{ f['id'] }}</td>
+                    <td>{{ f['airline'] }}</td>
+                    <td>{{ f['flight_number'] }}</td>
+                    <td>{{ f['origin'] }} → {{ f['destination'] }}</td>
+                    <td>{{ f['flight_date'] }}</td>
+                    <td>₹{{ f['price_economy'] | int }}</td>
+                    <td>₹{{ f['price_business'] | int }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- EXISTING HOTELS TABLE -->
+    <div class="admin-section">
+        <h3>🏨 All Hotels ({{ hotels|length }})</h3>
+        <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr><th>ID</th><th>Name</th><th>City</th><th>Stars</th><th>Single</th><th>Double</th><th>Suite</th></tr>
+            </thead>
+            <tbody>
+                {% for h in hotels %}
+                <tr>
+                    <td>{{ h['id'] }}</td>
+                    <td>{{ h['name'] }}</td>
+                    <td>{{ h['city'] }}</td>
+                    <td>{{ '⭐' * h['star_rating'] }}</td>
+                    <td>₹{{ h['price_single'] | int }}</td>
+                    <td>₹{{ h['price_double'] | int }}</td>
+                    <td>₹{{ h['price_suite'] | int }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

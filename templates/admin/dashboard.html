@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="page-title">⚙️ Admin Dashboard</h1>
+
+    <!-- STATS GRID -->
+    <div class="stats-grid">
+        <div class="stat-card stat-blue">
+            <div class="stat-number">{{ stats['total_bookings'] }}</div>
+            <div class="stat-label">Total Bookings</div>
+        </div>
+        <div class="stat-card stat-green">
+            <div class="stat-number">{{ stats['confirmed'] }}</div>
+            <div class="stat-label">Confirmed</div>
+        </div>
+        <div class="stat-card stat-amber">
+            <div class="stat-number">₹{{ stats['total_revenue'] | int }}</div>
+            <div class="stat-label">Total Revenue</div>
+        </div>
+        <div class="stat-card stat-purple">
+            <div class="stat-number">{{ stats['total_users'] }}</div>
+            <div class="stat-label">Registered Users</div>
+        </div>
+    </div>
+
+    <!-- BOOKINGS BY TYPE -->
+    <div class="mini-stats-row">
+        <div class="mini-stat">
+            <span class="mini-icon">✈️</span>
+            <span class="mini-val">{{ stats['flight_bookings'] }}</span>
+            <span class="mini-lbl">Flights</span>
+        </div>
+        <div class="mini-stat">
+            <span class="mini-icon">🏨</span>
+            <span class="mini-val">{{ stats['hotel_bookings'] }}</span>
+            <span class="mini-lbl">Hotels</span>
+        </div>
+        <div class="mini-stat">
+            <span class="mini-icon">🗺️</span>
+            <span class="mini-val">{{ stats['tour_bookings'] }}</span>
+            <span class="mini-lbl">Tours</span>
+        </div>
+        <div class="mini-stat">
+            <span class="mini-icon">🚗</span>
+            <span class="mini-val">{{ stats['cab_bookings'] }}</span>
+            <span class="mini-lbl">Cabs</span>
+        </div>
+    </div>
+
+    <!-- REVENUE BY TYPE -->
+    {% if revenue_by_type %}
+    <div class="admin-section">
+        <h3>Revenue by Service</h3>
+        <div class="rev-bars">
+            {% set max_rev = namespace(val=1) %}
+            {% for row in revenue_by_type %}
+                {% if row['rev'] > max_rev.val %}{% set max_rev.val = row['rev'] %}{% endif %}
+            {% endfor %}
+            {% for row in revenue_by_type %}
+            <div class="rev-bar-row">
+                <span class="rev-label">
+                    {% if row['booking_type']=='flight' %}✈️ Flights
+                    {% elif row['booking_type']=='hotel' %}🏨 Hotels
+                    {% elif row['booking_type']=='tour' %}🗺️ Tours
+                    {% else %}🚗 Cabs{% endif %}
+                </span>
+                <div class="rev-bar-track">
+                    <div class="rev-bar-fill"
+                         style="width: {{ ((row['rev'] / max_rev.val) * 100)|round|int }}%">
+                    </div>
+                </div>
+                <span class="rev-amount">₹{{ row['rev'] | int }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- RECENT BOOKINGS TABLE -->
+    <div class="admin-section">
+        <div class="section-header">
+            <h3>Recent Bookings</h3>
+            <a href="{{ url_for('admin_manage') }}" class="btn btn-outline btn-sm">Manage Listings</a>
+        </div>
+        <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>TXN ID</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in recent_bookings %}
+                <tr>
+                    <td>{{ b['id'] }}</td>
+                    <td>{{ b['user_name'] }}</td>
+                    <td>
+                        {% if b['booking_type']=='flight' %}✈️
+                        {% elif b['booking_type']=='hotel' %}🏨
+                        {% elif b['booking_type']=='tour' %}🗺️
+                        {% else %}🚗{% endif %}
+                        {{ b['booking_type'].capitalize() }}
+                    </td>
+                    <td>₹{{ b['total_amount'] | int }}</td>
+                    <td>{{ b['method'] or '—' }}</td>
+                    <td><span class="txn-id">{{ b['txn_id'] or '—' }}</span></td>
+                    <td>
+                        <span class="status-badge status-{{ b['status'] }}">
+                            {{ b['status'].capitalize() }}
+                        </span>
+                    </td>
+                    <td>{{ b['created_at'][:10] }}</td>
+                    <td>
+                        <form action="{{ url_for('admin_update_booking', booking_id=b['id']) }}"
+                              method="post" style="display:flex;gap:6px;align-items:center">
+                            <select name="status" class="status-select">
+                                <option value="pending"   {% if b['status']=='pending'   %}selected{% endif %}>Pending</option>
+                                <option value="confirmed" {% if b['status']=='confirmed' %}selected{% endif %}>Confirmed</option>
+                                <option value="cancelled" {% if b['status']=='cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
