@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Search Flights{% endblock %}
+{% block content %}
+<div class="container">
+    <!-- SEARCH BAR (pre-filled with current search) -->
+    <div class="search-bar-compact">
+        <form action="{{ url_for('flights_search') }}" method="get" class="compact-form">
+            <input type="text" name="from" value="{{ origin }}" placeholder="From" required>
+            <span class="swap-icon">⇄</span>
+            <input type="text" name="to" value="{{ destination }}" placeholder="To" required>
+            <input type="date" name="date" value="{{ date }}">
+            <select name="passengers">
+                {% for i in range(1,6) %}
+                <option value="{{ i }}" {% if i == passengers %}selected{% endif %}>{{ i }} pax</option>
+                {% endfor %}
+            </select>
+            <select name="class">
+                <option value="economy" {% if travel_class=='economy' %}selected{% endif %}>Economy</option>
+                <option value="business" {% if travel_class=='business' %}selected{% endif %}>Business</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+
+    <h2 class="page-title">
+        {% if results %}
+            {{ results|length }} flight(s)
+            {% if origin and destination %} from {{ origin }} to {{ destination }}{% endif %}
+        {% elif origin %}
+            No flights found for {{ origin }} → {{ destination }}
+        {% else %}
+            Search for Flights
+        {% endif %}
+    </h2>
+
+    {% if not origin %}
+    <!-- EMPTY STATE: Show search tips -->
+    <div class="empty-hero">
+        <div class="empty-icon">✈️</div>
+        <h3>Find the best flights</h3>
+        <p>Enter your origin, destination and date above</p>
+    </div>
+    {% endif %}
+
+    <!-- RESULTS -->
+    {% for flight in results %}
+    <div class="result-card flight-card">
+        <div class="flight-airline">
+            <strong>{{ flight['airline'] }}</strong>
+            <span class="flight-number">{{ flight['flight_number'] }}</span>
+            {% if flight['stops'] == 0 %}
+                <span class="badge badge-green">Non-stop</span>
+            {% else %}
+                <span class="badge badge-amber">{{ flight['stops'] }} stop(s)</span>
+            {% endif %}
+        </div>
+        <div class="flight-times">
+            <div class="flight-time-block">
+                <span class="time">{{ flight['departure_time'] }}</span>
+                <span class="city">{{ flight['origin'] }}</span>
+            </div>
+            <div class="flight-duration">
+                <span>──── {{ flight['duration_hrs'] }}h ────</span>
+                <span class="small-text">✈️ {{ flight['flight_date'] }}</span>
+            </div>
+            <div class="flight-time-block">
+                <span class="time">{{ flight['arrival_time'] }}</span>
+                <span class="city">{{ flight['destination'] }}</span>
+            </div>
+        </div>
+        <div class="flight-prices">
+            <div class="price-option {% if travel_class=='economy' %}selected-class{% endif %}">
+                <span class="price-label">Economy</span>
+                <span class="price-amount">₹{{ flight['price_economy'] | int }}</span>
+                <a href="{{ url_for('flight_book', flight_id=flight['id']) }}?passengers={{ passengers }}&class=economy"
+                   class="btn btn-primary btn-sm">Book</a>
+            </div>
+            <div class="price-option {% if travel_class=='business' %}selected-class{% endif %}">
+                <span class="price-label">Business</span>
+                <span class="price-amount">₹{{ flight['price_business'] | int }}</span>
+                <a href="{{ url_for('flight_book', flight_id=flight['id']) }}?passengers={{ passengers }}&class=business"
+                   class="btn btn-outline btn-sm">Book</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if origin and not results %}
+    <div class="no-results">
+        <p>😔 No flights found for {{ origin }} → {{ destination }}
+        {% if date %}on {{ date }}{% endif %}</p>
+        <p>Try changing the date or checking spelling.</p>
+        <a href="{{ url_for('flights_search') }}" class="btn btn-outline">Clear Search</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
