@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Tour Packages{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="page-title">🗺️ Tour Packages</h1>
+
+    <!-- Category filter pills -->
+    <div class="filter-bar">
+        <a href="{{ url_for('tours_list') }}"
+           class="filter-btn {% if not selected_category %}active{% endif %}">All</a>
+        {% for cat in categories %}
+        <a href="{{ url_for('tours_list') }}?category={{ cat['category'] }}"
+           class="filter-btn {% if selected_category == cat['category'] %}active{% endif %}">
+            {{ cat['category'] }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="tours-grid">
+    {% for tour in tours %}
+    <div class="tour-card">
+        <div class="tour-emoji">{{ tour['image_emoji'] }}</div>
+        <div class="tour-body">
+            <div class="tour-header">
+                <span class="category-pill">{{ tour['category'] }}</span>
+                <span class="tour-duration">{{ tour['duration_days'] }} days</span>
+            </div>
+            <h3>{{ tour['name'] }}</h3>
+            <p class="tour-dest">📍 {{ tour['destination'] }}</p>
+            <p class="tour-desc">{{ tour['description'] }}</p>
+            <div class="inclusions">
+                {% for inc in tour['inclusions'].split(',') %}
+                    <span class="incl-tag">✓ {{ inc.strip() }}</span>
+                {% endfor %}
+            </div>
+            <div class="tour-footer">
+                <div>
+                    <span class="price-from">from</span>
+                    <span class="tour-price">₹{{ tour['price_per_person'] | int }}</span>
+                    <span class="price-per">/ person</span>
+                </div>
+                <div>
+                    <span class="small-text">Starts: {{ tour['start_date'] }}</span>
+                    <span class="small-text"> · Max {{ tour['max_people'] }} people</span>
+                </div>
+            </div>
+        </div>
+        <a href="{{ url_for('tour_book', tour_id=tour['id']) }}" class="btn btn-primary">Book Package</a>
+    </div>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}
