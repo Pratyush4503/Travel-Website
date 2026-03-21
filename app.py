@@ -638,18 +638,17 @@ def make_admin(user_id):
 # ─────────────────────────────────────────────
 
 def initialize():
-    """
-    Always run on startup — creates DB and seeds data if missing.
-    On Render's free tier the filesystem resets on every deploy,
-    so we can't rely on the build command having done this.
-    """
     from database import init_db
     from seed_data import seed
-    if not os.path.exists('travel.db'):
+    db_path = os.path.join(os.path.dirname(__file__), 'travel.db')
+    if not os.path.exists(db_path):
         print("🔧 Initializing database...")
         init_db()
         seed()
         print("✅ Database ready.")
+
+with app.app_context():
+    initialize()
 
 # Run initialization immediately when the module loads
 # This runs before gunicorn serves any requests
