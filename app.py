@@ -20,7 +20,8 @@ from functools import wraps
 from database import init_db
 
 app = Flask(__name__)
-app.secret_key = 'travel-app-secret-2025-change-in-prod'
+import os
+app.secret_key = os.environ.get('SECRET_KEY', 'travel-app-secret-2025-fallback')
 
 # ─────────────────────────────────────────────
 # HELPERS
@@ -640,4 +641,4 @@ if __name__ == '__main__':
     if not os.path.exists('travel.db'):
         init_db()
         print("DB created. Run: python seed_data.py")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000)
