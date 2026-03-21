@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TripEase{% endblock %} — TripEase</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="{{ url_for('index') }}" class="nav-brand">✈️ TripEase</a>
+        <div class="nav-links">
+            <a href="{{ url_for('flights_search') }}">✈️ Flights</a>
+            <a href="{{ url_for('hotels_search') }}">🏨 Hotels</a>
+            <a href="{{ url_for('tours_list') }}">🗺️ Tours</a>
+            <a href="{{ url_for('cabs_search') }}">🚗 Cabs</a>
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('my_bookings') }}">📋 My Bookings</a>
+                {% if session.get('is_admin') %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="admin-link">⚙️ Admin</a>
+                {% endif %}
+                <span class="nav-user">👤 {{ session['username'] }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                    <button class="close-btn" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-col">
+            <strong>✈️ TripEase</strong>
+            <p>Book flights, hotels, tours and cabs — all in one place.</p>
+        </div>
+        <div class="footer-col">
+            <strong>Services</strong>
+            <a href="{{ url_for('flights_search') }}">Flights</a>
+            <a href="{{ url_for('hotels_search') }}">Hotels</a>
+            <a href="{{ url_for('tours_list') }}">Tour Packages</a>
+            <a href="{{ url_for('cabs_search') }}">Cab Booking</a>
+        </div>
+        <div class="footer-col">
+            <strong>Account</strong>
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('my_bookings') }}">My Bookings</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </div>
+    </div>
+    <p class="footer-copy">© 2025 TripEase — Built with Flask + SQLite by Pratyush Parashar</p>
+</footer>
+</body>
+</html>

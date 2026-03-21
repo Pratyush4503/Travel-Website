@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}My Bookings{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="page-title">📋 My Bookings</h1>
+
+    {% if enriched %}
+    <div class="bookings-list">
+        {% for entry in enriched %}
+        {% set b = entry['booking'] %}
+        {% set d = entry['detail'] %}
+        <div class="booking-history-card status-border-{{ b['status'] }}">
+            <div class="bh-header">
+                <div>
+                    <span class="bh-type-icon">
+                        {% if b['booking_type']=='flight' %}✈️
+                        {% elif b['booking_type']=='hotel' %}🏨
+                        {% elif b['booking_type']=='tour' %}🗺️
+                        {% else %}🚗{% endif %}
+                    </span>
+                    <strong>
+                        {% if b['booking_type']=='flight' and d %}
+                            {{ d['airline'] }} {{ d['flight_number'] }} — {{ d['origin'] }} → {{ d['destination'] }}
+                        {% elif b['booking_type']=='hotel' and d %}
+                            {{ d['name'] }}, {{ d['city'] }}
+                        {% elif b['booking_type']=='tour' and d %}
+                            {{ d['name'] }} ({{ d['destination'] }})
+                        {% elif b['booking_type']=='cab' and d %}
+                            Cab: {{ d['origin'] }} → {{ d['destination'] }}
+                        {% else %}
+                            Booking #{{ b['id'] }}
+                        {% endif %}
+                    </strong>
+                </div>
+                <span class="status-badge status-{{ b['status'] }}">
+                    {% if b['status']=='confirmed' %}✅
+                    {% elif b['status']=='pending' %}⏳
+                    {% elif b['status']=='cancelled' %}❌
+                    {% endif %}
+                    {{ b['status'].capitalize() }}
+                </span>
+            </div>
+
+            <div class="bh-meta">
+                <span>Booking #{{ b['id'] }}</span>
+                <span>·</span>
+                <span>₹{{ b['total_amount'] | int }}</span>
+                <span>·</span>
+                <span>{{ b['created_at'][:10] }}</span>
+                {% if b['txn_id'] %}
+                    <span>·</span>
+                    <span class="txn-id">{{ b['txn_id'] }}</span>
+                {% endif %}
+                {% if b['booking_type']=='flight' %}
+                    <span>·</span>
+                    <span>{{ b['travel_class'].capitalize() }} × {{ b['passengers'] }}</span>
+                {% endif %}
+                {% if b['check_in_date'] %}
+                    <span>·</span>
+                    <span>{{ b['check_in_date'] }}</span>
+                {% endif %}
+            </div>
+
+            {% if b['status'] == 'confirmed' %}
+            <form action="{{ url_for('cancel_booking', booking_id=b['id']) }}" method="post"
+                  onsubmit="return confirm('Cancel this booking?')">
+                <button type="submit" class="btn btn-danger btn-sm" style="margin-top:10px">
+                    Cancel Booking
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state-large">
+        <p>📋 No bookings yet</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Start Exploring</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

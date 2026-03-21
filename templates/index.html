@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<!-- HERO SECTION WITH TABBED SEARCH -->
+<div class="hero">
+    <div class="hero-text">
+        <h1>Your journey starts here</h1>
+        <p>Flights · Hotels · Tour Packages · Cabs — all in one place</p>
+    </div>
+
+    <div class="search-box">
+        <!-- Tab buttons -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="showTab('flights',this)">✈️ Flights</button>
+            <button class="tab-btn" onclick="showTab('hotels',this)">🏨 Hotels</button>
+            <button class="tab-btn" onclick="showTab('tours',this)">🗺️ Tours</button>
+            <button class="tab-btn" onclick="showTab('cabs',this)">🚗 Cabs</button>
+        </div>
+
+        <!-- Flights search -->
+        <div id="tab-flights" class="tab-content active">
+            <form action="{{ url_for('flights_search') }}" method="get" class="search-form">
+                <div class="search-row">
+                    <div class="search-field">
+                        <label>From</label>
+                        <input type="text" name="from" placeholder="Delhi" list="flight-cities" required>
+                    </div>
+                    <div class="search-field">
+                        <label>To</label>
+                        <input type="text" name="to" placeholder="Mumbai" list="flight-cities" required>
+                    </div>
+                    <div class="search-field">
+                        <label>Date</label>
+                        <input type="date" name="date">
+                    </div>
+                    <div class="search-field search-field-sm">
+                        <label>Passengers</label>
+                        <select name="passengers">
+                            <option>1</option><option>2</option>
+                            <option>3</option><option>4</option><option>5</option>
+                        </select>
+                    </div>
+                    <div class="search-field search-field-sm">
+                        <label>Class</label>
+                        <select name="class">
+                            <option value="economy">Economy</option>
+                            <option value="business">Business</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-search">Search Flights</button>
+            </form>
+        </div>
+
+        <!-- Hotels search -->
+        <div id="tab-hotels" class="tab-content">
+            <form action="{{ url_for('hotels_search') }}" method="get" class="search-form">
+                <div class="search-row">
+                    <div class="search-field">
+                        <label>City</label>
+                        <input type="text" name="city" placeholder="Mumbai" list="hotel-cities" required>
+                    </div>
+                    <div class="search-field">
+                        <label>Check-in</label>
+                        <input type="date" name="check_in">
+                    </div>
+                    <div class="search-field">
+                        <label>Check-out</label>
+                        <input type="date" name="check_out">
+                    </div>
+                    <div class="search-field search-field-sm">
+                        <label>Guests</label>
+                        <select name="guests">
+                            <option>1</option><option>2</option><option>3</option><option>4</option>
+                        </select>
+                    </div>
+                    <div class="search-field search-field-sm">
+                        <label>Min Stars</label>
+                        <select name="stars">
+                            <option value="0">Any</option>
+                            <option value="3">3+</option>
+                            <option value="4">4+</option>
+                            <option value="5">5 only</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-search">Search Hotels</button>
+            </form>
+        </div>
+
+        <!-- Tours search -->
+        <div id="tab-tours" class="tab-content">
+            <form action="{{ url_for('tours_list') }}" method="get" class="search-form">
+                <div class="search-row">
+                    <div class="search-field">
+                        <label>Category</label>
+                        <select name="category">
+                            <option value="">All categories</option>
+                            {% for cat in tour_categories %}
+                                <option value="{{ cat['category'] }}">{{ cat['category'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-search">Browse Tours</button>
+            </form>
+        </div>
+
+        <!-- Cabs search -->
+        <div id="tab-cabs" class="tab-content">
+            <form action="{{ url_for('cabs_search') }}" method="get" class="search-form">
+                <div class="search-row">
+                    <div class="search-field">
+                        <label>From</label>
+                        <input type="text" name="from" placeholder="Delhi" required>
+                    </div>
+                    <div class="search-field">
+                        <label>To</label>
+                        <input type="text" name="to" placeholder="Agra" required>
+                    </div>
+                    <div class="search-field">
+                        <label>Date</label>
+                        <input type="date" name="date">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-search">Find Cabs</button>
+            </form>
+        </div>
+
+        <!-- Datalist for autocomplete -->
+        <datalist id="flight-cities">
+            {% for city in flight_cities %}<option value="{{ city }}">{% endfor %}
+        </datalist>
+        <datalist id="hotel-cities">
+            {% for city in hotel_cities %}<option value="{{ city }}">{% endfor %}
+        </datalist>
+    </div>
+</div>
+
+<!-- POPULAR DESTINATIONS -->
+<div class="container">
+    <h2 class="section-title">Popular Destinations</h2>
+    <div class="dest-grid">
+        {% set destinations = [
+            ('Delhi', '🏛️', 'History & culture'),
+            ('Goa', '🏖️', 'Beach & nightlife'),
+            ('Kerala', '🌴', 'Backwaters & ayurveda'),
+            ('Rajasthan', '🐪', 'Palaces & deserts'),
+            ('Ladakh', '🏔️', 'Mountains & monasteries'),
+            ('Mumbai', '🌆', 'City & Bollywood'),
+        ] %}
+        {% for city, emoji, tagline in destinations %}
+        <a href="{{ url_for('flights_search') }}?to={{ city }}" class="dest-card">
+            <div class="dest-emoji">{{ emoji }}</div>
+            <div class="dest-info">
+                <strong>{{ city }}</strong>
+                <span>{{ tagline }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- WHY TRIPEASE -->
+    <h2 class="section-title">Why TripEase?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Secure Payments</h3>
+            <p>All transactions are encrypted and safe</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">💰</div>
+            <h3>Best Prices</h3>
+            <p>We compare across 100+ providers</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>Instant Confirmation</h3>
+            <p>Get your e-ticket in seconds</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🎧</div>
+            <h3>24/7 Support</h3>
+            <p>Our team is always here to help</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
+{% endblock %}
