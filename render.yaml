@@ -2,7 +2,7 @@ services:
   - type: web
     name: travel-booking-website
     runtime: python
-    buildCommand: "pip install -r requirements.txt && python database.py && python seed_data.py"
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
